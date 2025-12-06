@@ -5,7 +5,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize the client once (Global scope is fine for this scale)
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+try:
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        # If .env failed (cloud), try Streamlit secrets
+        api_key = st.secrets["GOOGLE_API_KEY"]
+except Exception as e:
+    api_key = None
+client = genai.Client(api_key=os.getenv(api_key))
 
 def roast_resume(resume_text):
     """
